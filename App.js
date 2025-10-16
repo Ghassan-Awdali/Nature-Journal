@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { View, ActivityIndicator, StyleSheet, Text } from "react-native";
+import {
+  View,
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import { auth } from "./firebase";
-import CameraScreen from "./screens/CameraScreen";
+import CameraScreen from "./screens/CameraScreen.js";
+import CalendarScreen from "./screens/CalenderScreen.js";
 
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentScreen, setCurrentScreen] = useState("camera");
 
   useEffect(() => {
     console.log("🔵 App mounted, starting auth...");
@@ -80,8 +88,45 @@ export default function App() {
     );
   }
 
-  // Success - show camera screen
-  return <CameraScreen user={user} />;
+  // Success - show app with navigation
+  return (
+    <View style={styles.appContainer}>
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tab, currentScreen === "camera" && styles.activeTab]}
+          onPress={() => setCurrentScreen("camera")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              currentScreen === "camera" && styles.activeTabText,
+            ]}
+          >
+            📷 Camera
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, currentScreen === "calendar" && styles.activeTab]}
+          onPress={() => setCurrentScreen("calendar")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              currentScreen === "calendar" && styles.activeTabText,
+            ]}
+          >
+            📅 Calendar
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {currentScreen === "camera" ? (
+        <CameraScreen user={user} />
+      ) : (
+        <CalendarScreen user={user} />
+      )}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -91,6 +136,35 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     padding: 20,
+  },
+  appContainer: {
+    flex: 1,
+  },
+  tabBar: {
+    flexDirection: "row",
+    backgroundColor: "#f8f9fa",
+    paddingTop: 50,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+  },
+  tab: {
+    flex: 1,
+    padding: 15,
+    alignItems: "center",
+  },
+  activeTab: {
+    backgroundColor: "#4CAF50",
+    borderRadius: 8,
+    marginHorizontal: 5,
+  },
+  tabText: {
+    fontSize: 16,
+    color: "#666",
+  },
+  activeTabText: {
+    color: "white",
+    fontWeight: "bold",
   },
   loadingText: {
     marginTop: 10,
